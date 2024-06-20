@@ -1,0 +1,14 @@
+-f https://download.pytorch.org/whl/torch_stable.html 
+torch==2.3.0+cpu
+celery==5.4.0
+fastapi==0.111.0
+numpy==1.24.3
+Pillow==10.3.0
+qdrant_client==1.9.1
+Requests==2.32.3
+transformers==4.41.2
+uvicorn==0.30.1
+redis==5.0.6
+aiohttp==3.9.5
+aiofiles==23.2.1
+asyncio==3.4.3
