@@ -10,9 +10,11 @@ services:
       - celery-worker
     environment:
       - QDRANT_URL=http://qdrant-semantic-search:6444
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
     command: uvicorn main:app --host 0.0.0.0 --port 8002
     volumes:
-      - huggingface_models:/root/.cache/huggingface
+      - .volumes/huggingface_models:/root/.cache/huggingface
     ports:
       - 8002:8002
 
@@ -32,11 +34,11 @@ services:
       - 6445
       - 6446
     volumes:
-      - qdrant_storage:/qdrant/storage
+      - .volumes/qdrant_storage:/qdrant/storage
     environment:
       - QDRANT__SERVICE__HTTP_PORT=6444
       - QDRANT__SERVICE__GRPC_PORT=6445
-  
+
   celery-worker:
     build: ./backend
     command: celery -A tasks.celery_app worker --loglevel=info
@@ -45,8 +47,9 @@ services:
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - QDRANT_URL=http://qdrant-semantic-search:6444
     volumes:
-      - huggingface_models:/root/.cache/huggingface  # Mount the volume
+      - .volumes/huggingface_models:/root/.cache/huggingface
 
   semantic-frontend:
     build: ./frontend
@@ -54,7 +57,3 @@ services:
     ports:
       - 8003:8003
     command: streamlit run main.py --server.port 8003
-
-volumes:
-  qdrant_storage:
-  huggingface_models:
