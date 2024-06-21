@@ -12,9 +12,11 @@ qdrant_client = QdrantClientSingleton.get_client()
 @router.post("/add")
 async def add_products(background_tasks: BackgroundTasks):
     products = await load_products("products.json")
-    await qdrant_client.recreate_collection(
-        collection_name="products",
-        vectors_config=VectorParams(size=512, distance=Distance.COSINE),
-    )
+    collection_exists = await qdrant_client.collection_exists("products")
+    if not collection_exists:
+        await qdrant_client.create_collection(
+            collection_name="products",
+            vectors_config=VectorParams(size=512, distance=Distance.COSINE),
+        )
     task = encode_and_store_products.delay(products)
     return {"message": "Products are being processed", "task_id": task.id}
